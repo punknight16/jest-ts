@@ -1,27 +1,86 @@
 //FizzBuzz.test.ts
 /// <reference types="jest" />
 
+import { listItemFromTable, putItemFromTable, deleteItemFromTable } from '../src/mock-db';
 
-export function fizzBuzz(n: number): string {
-    let output = "";
-    for (let i = 1; i <= n; i++) {
-        if (i % 5 && i % 3) {
-            output += i + ' ';
-        }
-        if (i % 3 === 0) {
-            output += 'Fizz ';
-        }
-        if (i % 5 === 0) {
-            output += 'Buzz ';
-        }
+const getResponseCB = (done: any, assertion: any)=>{
+  return (err: any, data: any) => {
+    try {
+      if (err) {
+        done(err);
+      }
+      else {
+        assertion(data);
+        done();
+      }
+    } catch (error) {
+      done(error);
     }
-    return output;
+  }
 }
 
-describe(`Fizz Buzz takes in a string and returns a string of numbers with /3 and /5 replaced with Fizz and Buzz respectively`, ()=>{
-	it('should return "1 2" and "1 2 Fizz "', () => {
-		    expect(fizzBuzz(2)).toBe("1 2 ");
-		    expect(fizzBuzz(3)).toBe("1 2 Fizz ");
-	});	
-})
+describe("sample db tests", ()=>{
+	beforeAll(() => {
+      const param1 = {
+        Table: "SimpleTable",
+        Item: {  
+          "UserId": "1", 
+          "UserName": "User1", 
+          "Status": "PENDING"
+        }
+      }
+      const param2 = {
+        Table: "SimpleTable",
+        Item: {  
+          "UserId": "2", 
+          "UserName": "User2", 
+          "Status": "PAID",
+          "Results": [{id: "2", data: "dummy data"}]
+        }
+      }
+      putItemFromTable(param1, (err, data)=>{});
+      putItemFromTable(param2,(err, data)=>{});
+    });
 
+    afterAll((done)=>{
+      const param1 = {
+        Table: "SimpleTable",
+        Key:   "UserId",
+        Value:  "1"
+      }
+      const param2 = {
+        Table: "SimpleTable",
+        Key:   "UserId",
+        Value:  "2"
+      }
+      const param3 = {Table: "SimpleTable"};
+      
+      deleteItemFromTable(param1, (err, data)=>{});
+      deleteItemFromTable(param2,(err, data)=>{});
+    })
+
+
+    describe("scanSimpleTable", ()=>{
+      it("should return last 2 items from SimpleTable table", (done)=>{
+        const assertion = (data)=>{
+          const result = [
+            {  
+              "UserId": "1", 
+              "UserName": "User1", 
+              "Status": "PENDING"
+            },
+            {  
+              "UserId": "2", 
+              "UserName": "User2", 
+              "Status": "PAID",
+              "Results": [{id: "2",  data: "dummy data"}]
+            }
+          ];
+          expect(data).toEqual(result);
+        }
+        const params = {Table: "SimpleTable"};
+        const cb = getResponseCB(done, assertion)
+        listItemFromTable(params, cb);
+      })
+    }) 
+})
