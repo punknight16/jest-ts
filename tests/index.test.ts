@@ -18,7 +18,10 @@ export function fizzBuzz(n: number): string {
     return output;
 }
 
-test("FizzBuzz test", () =>{
-    expect(fizzBuzz(2)).toBe("1 2 ");
-    expect(fizzBuzz(3)).toBe("1 2 Fizz ");
-});
+describe(`Fizz Buzz takes in a string and returns a string of numbers with /3 and /5 replaced with Fizz and Buzz respectively`, ()=>{
+	it('should return "1 2" and "1 2 Fizz "', () => {
+		    expect(fizzBuzz(2)).toBe("1 2 ");
+		    expect(fizzBuzz(3)).toBe("1 2 Fizz ");
+	});	
+})
+
